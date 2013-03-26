@@ -34,6 +34,30 @@ class SecondHomeworkSimpleTests(unittest.TestCase):
         actual = solution.zip_with(str.__add__, first_names, last_names)
         self.assertEqual(expected, list(actual))
 
+    def test_zip_with_empty(self):
+        first_names = ['Charlie', 'Dizzy']
+        last_names = []
+        expected = []
+        actual = solution.zip_with(str.__add__, first_names, last_names)
+        self.assertEqual(expected, list(actual))
+
+    def test_zip_with_one_element(self):
+        first = [1, 2]
+        second = [3]
+        expected = [(1, 3)]
+        actual = solution.zip_with(lambda x, y: (x, y),
+                                   first, second)
+        self.assertEqual(expected, list(actual))
+
+    def test_zip_with_three_iterables(self):
+        first = ('a', 'b', 'c', 'd')
+        second = ['e', 'f', 'g']
+        third = ('h', 'i', 'j', 'k', 'l')
+        expected = ['aeh', 'bfi', 'cgj']
+        actual = solution.zip_with(lambda x, y, z: x + y + z,
+                                   first, second, third)
+        self.assertEqual(expected, list(actual))
+
     def test_cache_call_is_cached(self):
         call_count = 0
 
@@ -42,10 +66,31 @@ class SecondHomeworkSimpleTests(unittest.TestCase):
             call_count += 1
             return 2 * x
 
-        cached_double = solution.cache(double, 10)
+        cached_double = solution.cache(double, 2)
         self.assertEqual(256, cached_double(128))
         self.assertEqual(256, cached_double(128))
         self.assertEqual(1, call_count)
+        self.assertEqual(64, cached_double(32))
+        self.assertEqual(64, cached_double(32))
+        self.assertEqual(2, call_count)
+        self.assertEqual(32, cached_double(16))
+        self.assertEqual(32, cached_double(16))
+        self.assertEqual(3, call_count)
+        self.assertEqual(256, cached_double(128))
+        self.assertEqual(4, call_count)
+
+    def test_cache_zero_times(self):
+        call_count = 0
+
+        def double(x):
+            nonlocal call_count
+            call_count += 1
+            return 2 * x
+
+        cached_double = solution.cache(double, 0)
+        self.assertEqual(256, cached_double(128))
+        self.assertEqual(256, cached_double(128))
+        self.assertEqual(2, call_count)
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,10 +17,10 @@ def compose(func1, func2):
 
 
 def iterate(func):
-    """Return the iteration of a function.
+    """Return the iteration of `func`.
 
-    Generate infinite sequence of compositions of func. The nth element in the
-    sequence is the composition of (n - 1) functions.
+    Generate infinite sequence of compositions of `func`. The nth element
+    in the sequence is the composition of (n - 1) functions.
 
     The first element is the identity function.
 
@@ -50,17 +50,21 @@ def zip_with(func, *iterables):
 def cache(func, cache_size):
     """Return a function that caches the last `cache_size` results of `func`.
 
+    Returns `func` if `cache_size` is <= 0
+
     """
+    if cache_size <= 0:
+        return func
+
     cache_store = OrderedDict()
 
     def cached_func(*args):
-        if args in cache_store:
-            return cache_store[args]
+        if args not in cache_store:
+            if len(cache_store) >= cache_size:
+                cache_store.popitem(False)
 
-        if len(cache_store) == cache_size:
-            cache_store.popitem(False)
+            cache_store[args] = func(*args)
 
-        cache_store[args] = func(*args)
         return cache_store[args]
 
     return cached_func
